@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0A0A0F;font-family:'DM Sans',sans-serif;color:#E8E8F0;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:#111;}::-webkit-scrollbar-thumb{background:#2a2a3e;border-radius:2px;}
+.btn{cursor:pointer;border:none;border-radius:8px;font-family:inherit;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-size:14px;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(135deg,#FF2D55,#FF6B35);color:white;padding:9px 18px;}
+.btn-primary:hover{box-shadow:0 4px 20px #FF2D5540;}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{background:rgba(255,255,255,.06);color:#aaa;padding:8px 14px;}
+.btn-ghost:hover{background:rgba(255,255,255,.1);color:#fff;}
+.btn-danger{background:#FF2D5520;color:#FF2D55;padding:9px 18px;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.nav-btn{background:none;border:none;cursor:pointer;padding:8px 16px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:500;color:#666;transition:all .15s;}
+.nav-btn.active{background:rgba(255,45,85,.15);color:#FF2D55;}
+.nav-btn:hover:not(.active){background:rgba(255,255,255,.05);color:#ccc;}
+.card{background:#13131A;border:1px solid #1E1E2E;border-radius:12px;}
+.chip{border-radius:6px;padding:2px 7px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-bottom:2px;}
+.chip:hover{opacity:.8;}
+.input{background:#0D0D14;border:1px solid #2A2A3E;border-radius:8px;color:#E8E8F0;font-family:inherit;font-size:14px;padding:10px 14px;width:100%;outline:none;transition:border .15s;}
+.input:focus{border-color:#FF2D55;box-shadow:0 0 0 3px #FF2D5515;}
+.input::placeholder{color:#3a3a55;}
+select.input{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+label.lbl{font-size:11px;color:#555;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;display:block;}
+.tag{display:inline-block;background:rgba(255,255,255,.06);border-radius:4px;padding:2px 8px;font-size:11px;color:#aaa;}
+.badge{display:inline-block;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
+.modal{background:#13131A;border:1px solid #252535;border-radius:16px;width:100%;max-width:660px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 80px rgba(0,0,0,.7);}
+.modal-sm{max-width:440px;}
+.modal-header{padding:18px 24px;border-bottom:1px solid #1E1E2E;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#13131A;border-radius:16px 16px 0 0;z-index:1;}
+.modal-body{padding:24px;display:flex;flex-direction:column;gap:18px;}
+.modal-footer{padding:16px 24px;border-top:1px solid #1A1A28;display:flex;align-items:center;gap:10px;position:sticky;bottom:0;background:#13131A;border-radius:0 0 16px 16px;}
+.cal-day{min-height:84px;background:#0D0D14;border:1px solid #161622;border-radius:8px;padding:6px;cursor:pointer;transition:all .15s;}
+.cal-day:hover{border-color:#FF2D5540;background:#120A0D;}
+.cal-day.today{border-color:#FF2D5570;background:#1A0A10;}
+.tr-row{cursor:pointer;transition:background .1s;}
+.tr-row:hover td{background:#16161F;}
+.toast{position:fixed;bottom:24px;right:24px;background:#1E1E2E;border:1px solid #2A2A40;border-radius:10px;padding:12px 18px;font-size:13px;color:#E8E8F0;z-index:200;animation:slideUp .2s ease;pointer-events:none;}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.progress-bar{height:4px;border-radius:2px;background:#1A1A2E;overflow:hidden;margin-top:6px;}
+.progress-fill{height:100%;border-radius:2px;transition:width .4s ease;}
+textarea.input{resize:vertical;min-height:80px;line-height:1.6;}
+.guion-card{transition:transform .15s,box-shadow .15s;cursor:pointer;}
+.guion-card:hover{transform:translateY(-2px);}
+.color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;transition:transform .1s;border:2px solid transparent;flex-shrink:0;display:inline-block;}
+.color-swatch:hover{transform:scale(1.15);}
+.color-swatch.selected{border-color:white;box-shadow:0 0 0 2px rgba(255,255,255,.3);}
+.acc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid #1A1A28;background:#0D0D14;}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;color:#333;text-align:center;gap:12px;}
+.title-edit{background:none;border:none;outline:none;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#E8E8F0;width:170px;border-bottom:1px solid transparent;transition:border .15s;padding-bottom:1px;}
+.title-edit:focus{border-bottom:1px solid #FF2D5540;}
+.title-edit::placeholder{color:#3a3a3a;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.header{border-bottom:1px solid #1A1A28;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;background:#0A0A0F;z-index:10;}
+.stats-grid{padding:16px 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.filters{padding:0 24px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.section{padding:0 24px 32px;}
+.cal-header-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.guiones-grid{padding:0 24px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="module">
+import { createElement as h, useState, useMemo, useEffect, useCallback, Fragment } from 'https://esm.sh/react@18.2.0';
+import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
+
+const FORMATS = ["Talking head IA","Tutorial","Behind the scenes","Trend/Meme","Carrusel","Feature reveal","Tip rápido","Caso de éxito"];
+const STATUSES = ["Idea","Guion listo","Grabado","Editado","Publicado"];
+const SC = {"Idea":"#6B7280","Guion listo":"#F59E0B","Grabado":"#3B82F6","Editado":"#8B5CF6","Publicado":"#10B981"};
+const DAYS = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const SK = "content-planner-v2";
+const COLORS = ["#FF2D55","#00F2EA","#E1306C","#F59E0B","#3B82F6","#8B5CF6","#10B981","#F97316","#06B6D4","#EC4899","#84CC16","#EF4444"];
+const EF = {id:null,account:"",title:"",date:"",format:FORMATS[0],status:"Idea",hook:"",guion:"",edicion:"",hashtags:"",notas:""};
+const EA = {id:null,name:"",color:"#FF2D55"};
+
+const dim = (y,m) => new Date(y,m+1,0).getDate();
+const fdm = (y,m) => { let d=new Date(y,m,1).getDay(); return d===0?6:d-1; };
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2);
+const load = () => { try{ const s=localStorage.getItem(SK); return s?JSON.parse(s):{title:"",accounts:[],posts:[]}; }catch{return {title:"",accounts:[],posts:[]};} };
+const save = (d) => { try{ localStorage.setItem(SK,JSON.stringify(d)); }catch(e){} };
+
+// helpers
+const e = (tag, props, ...children) => h(tag, props, ...children);
+const Div = (props) => e('div', props);
+
+function App() {
+  const [data, setData] = useState(() => load());
+  const [toast, setToast] = useState(null);
+  const [view, setView] = useState("calendar");
+  const [yr, setYr] = useState(new Date().getFullYear());
+  const [mo, setMo] = useState(new Date().getMonth());
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(EF);
+  const [confDel, setConfDel] = useState(false);
+  const [facc, setFacc] = useState("all");
+  const [fsta, setFsta] = useState("all");
+  const [showAcc, setShowAcc] = useState(false);
+  const [accForm, setAccForm] = useState(EA);
+
+  const persist = (nd) => { setData(nd); save(nd); };
+  const toast_ = (msg) => { setToast(msg); setTimeout(()=>setToast(null),2500); };
+
+  const { title, accounts, posts } = data;
+  const ga = (id) => accounts.find(a=>a.id===id);
+
+  // ACCOUNTS
+  const saveAcc = () => {
+    if (!accForm.name.trim()) { toast_("⚠️ Añade un nombre"); return; }
+    const na = accForm.id ? accounts.map(a=>a.id===accForm.id?{...accForm}:a) : [...accounts,{...accForm,id:uid()}];
+    persist({...data,accounts:na});
+    toast_(accForm.id?"✅ Actualizada":"✅ Cuenta añadida");
+    setAccForm(EA);
+  };
+  const delAcc = (id) => {
+    persist({...data,accounts:accounts.filter(a=>a.id!==id),posts:posts.filter(p=>p.account!==id)});
+    toast_("🗑️ Eliminada"); setAccForm(EA);
+  };
+
+  // POSTS
+  const fp = useMemo(()=>posts.filter(p=>(facc==="all"||p.account===facc)&&(fsta==="all"||p.status===fsta)),[posts,facc,fsta]);
+  const pbd = useMemo(()=>{ const m={}; fp.forEach(p=>{if(!m[p.date])m[p.date]=[];m[p.date].push(p);}); return m; },[fp]);
+
+  const openNew = (date="") => { setForm({...EF,date,account:accounts[0]?.id||""}); setConfDel(false); setShowForm(true); };
+  const openEdit = (p) => { setForm({...p}); setConfDel(false); setShowForm(true); };
+  const sf = (k,v) => setForm(f=>({...f,[k]:v}));
+
+  const savePost = () => {
+    if (!form.title.trim()) { toast_("⚠️ Añade un título"); return; }
+    if (!form.date) { toast_("⚠️ Selecciona fecha"); return; }
+    if (!form.account) { toast_("⚠️ Selecciona cuenta"); return; }
+    const np = form.id ? posts.map(p=>p.id===form.id?{...form}:p) : [...posts,{...form,id:Date.now()}];
+    persist({...data,posts:np}); toast_(form.id?"✅ Actualizado":"✅ Creado"); setShowForm(false);
+  };
+  const delPost = () => { persist({...data,posts:posts.filter(p=>p.id!==form.id)}); toast_("🗑️ Eliminado"); setShowForm(false); };
+  const updSta = (id,status) => { persist({...data,posts:posts.map(p=>p.id===id?{...p,status}:p)}); toast_(`📌 ${status}`); };
+
+  const days = dim(yr,mo), fd = fdm(yr,mo);
+  const pct = posts.length>0?Math.round(posts.filter(p=>p.status==="Publicado").length/posts.length*100):0;
+
+  return e(Fragment, null,
+    // HEADER
+    e('div',{className:"header"},
+      e('div',{style:{display:"flex",alignItems:"center",gap:12}},
+        e('div',{style:{background:"linear-gradient(135deg,#FF2D55,#FF6B35)",borderRadius:8,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}, "⚡"),
+        e('div',null,
+          e('input',{className:"title-edit",value:title,placeholder:"Añadir título...",onChange:ev=>persist({...data,title:ev.target.value})}),
+          e('div',{style:{fontSize:11,color:"#333",marginTop:-1}},"Content Planner")
+        )
+      ),
+      e('div',{style:{display:"flex",gap:2}},
+        [["calendar","📅 Calendario"],["lista","📋 Lista"],["guiones","✍️ Guiones"]].map(([v,l])=>
+          e('button',{key:v,className:`nav-btn${view===v?" active":""}`,onClick:()=>setView(v)},l)
+        )
+      ),
+      e('div',{style:{display:"flex",gap:8,alignItems:"center"}},
+        e('button',{className:"btn btn-ghost",style:{fontSize:13},onClick:()=>{setAccForm(EA);setShowAcc(true);}},"⚙️ Cuentas"),
+        e('button',{className:"btn btn-primary",onClick:()=>openNew(),disabled:accounts.length===0},"+ Nuevo")
+      )
+    ),
+
+    // EMPTY
+    accounts.length===0 && e('div',{className:"empty-state",style:{minHeight:"70vh"}},
+      e('div',{style:{fontSize:56}},"📱"),
+      e('div',{style:{fontFamily:"'Space Grotesk',sans-serif",fontSize:22,fontWeight:700,color:"#E8E8F0"}},"Empieza añadiendo tus cuentas"),
+      e('div',{style:{fontSize:14,color:"#444",maxWidth:340}},"Añade tus perfiles de TikTok, Instagram o cualquier red social."),
+      e('button',{className:"btn btn-primary",style:{marginTop:8},onClick:()=>{setAccForm(EA);setShowAcc(true);}},"+ Añadir primera cuenta")
+    ),
+
+    accounts.length>0 && e(Fragment,null,
+      // STATS
+      e('div',{className:"stats-grid"},
+        [{label:"Total posts",value:posts.length,icon:"📊"},{label:"Publicados",value:posts.filter(p=>p.status==="Publicado").length,icon:"✅",prog:true},{label:"Pendientes",value:posts.filter(p=>p.status!=="Publicado").length,icon:"⏳"},{label:"Esta semana",value:posts.filter(p=>{const d=(new Date(p.date)-new Date())/86400000;return d>=-1&&d<=7;}).length,icon:"🔥"}]
+        .map(s=>e('div',{key:s.label,className:"card",style:{padding:"14px 18px",display:"flex",alignItems:"center",gap:14}},
+          e('div',{style:{fontSize:26}},s.icon),
+          e('div',{style:{flex:1}},
+            e('div',{style:{display:"flex",alignItems:"baseline",gap:8}},
+              e('span',{style:{fontSize:24,fontWeight:700,lineHeight:1}},s.value),
+              s.prog&&e('span',{style:{fontSize:12,color:"#10B981",fontWeight:600}},pct+"%")
+            ),
+            e('div',{style:{fontSize:11,color:"#444",marginTop:3}},s.label),
+            s.prog&&e('div',{className:"progress-bar"},e('div',{className:"progress-fill",style:{width:pct+"%",background:"linear-gradient(90deg,#10B981,#34D399)"}}))
+          )
+        ))
+      ),
+
+      // FILTERS
+      e('div',{className:"filters"},
+        e('select',{className:"input",style:{width:"auto",padding:"7px 32px 7px 12px",fontSize:13},value:facc,onChange:ev=>setFacc(ev.target.value)},
+          e('option',{value:"all"},"Todas las cuentas"),
+          accounts.map(a=>e('option',{key:a.id,value:a.id},a.name))
+        ),
+        e('select',{className:"input",style:{width:"auto",padding:"7px 32px 7px 12px",fontSize:13},value:fsta,onChange:ev=>setFsta(ev.target.value)},
+          e('option',{value:"all"},"Todos los estados"),
+          STATUSES.map(s=>e('option',{key:s},s))
+        ),
+        e('div',{style:{marginLeft:"auto",display:"flex",gap:14,flexWrap:"wrap"}},
+          accounts.map(a=>e('div',{key:a.id,style:{display:"flex",alignItems:"center",gap:5,fontSize:11,color:facc===a.id?"#ccc":"#555",cursor:"pointer"},onClick:()=>setFacc(facc===a.id?"all":a.id)},
+            e('div',{style:{width:8,height:8,borderRadius:"50%",background:a.color,boxShadow:facc===a.id?`0 0 8px ${a.color}`:undefined}}),
+            a.name
+          ))
+        )
+      ),
+
+      // CALENDAR
+      view==="calendar"&&e('div',{className:"section"},
+        e('div',{className:"card",style:{padding:20}},
+          e('div',{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}},
+            e('button',{className:"btn btn-ghost",onClick:()=>mo===0?(setMo(11),setYr(y=>y-1)):setMo(m=>m-1)},"‹ Anterior"),
+            e('div',{style:{fontFamily:"'Space Grotesk',sans-serif",fontSize:20,fontWeight:700}},MONTHS[mo]+" "+yr),
+            e('button',{className:"btn btn-ghost",onClick:()=>mo===11?(setMo(0),setYr(y=>y+1)):setMo(m=>m+1)},"Siguiente ›")
+          ),
+          e('div',{className:"cal-header-grid"},DAYS.map(d=>e('div',{key:d,style:{textAlign:"center",fontSize:11,color:"#444",fontWeight:600,padding:"4px 0"}},d))),
+          e('div',{className:"cal-grid"},
+            ...Array.from({length:fd}).map((_,i)=>e('div',{key:"e"+i})),
+            ...Array.from({length:days}).map((_,i)=>{
+              const day=i+1;
+              const ds=`${yr}-${String(mo+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+              const dp=pbd[ds]||[];
+              const t=new Date(); const iT=t.getFullYear()===yr&&t.getMonth()===mo&&t.getDate()===day;
+              return e('div',{key:day,className:`cal-day${iT?" today":""}`,onClick:()=>openNew(ds)},
+                e('div',{style:{fontSize:11,fontWeight:600,color:iT?"#FF2D55":"#555",marginBottom:4,display:"flex",justifyContent:"space-between"}},
+                  e('span',null,day),
+                  dp.length>0&&e('span',{style:{color:"#444",fontSize:9}},dp.length+"✦")
+                ),
+                ...dp.slice(0,3).map(p=>{ const acc=ga(p.account); return acc?e('div',{key:p.id,className:"chip",style:{background:acc.color+"22",color:acc.color,borderLeft:"2px solid "+acc.color},onClick:ev=>{ev.stopPropagation();openEdit(p);}},p.title):null; }),
+                dp.length>3&&e('div',{style:{fontSize:9,color:"#444",marginTop:2}},`+${dp.length-3} más`)
+              );
+            })
+          )
+        )
+      ),
+
+      // LISTA
+      view==="lista"&&e('div',{className:"section"},
+        e('div',{className:"card",style:{overflow:"hidden"}},
+          fp.length===0
+            ? e('div',{className:"empty-state"},e('div',{style:{fontSize:40}},"📭"),e('div',null,"No hay posts todavía"),e('button',{className:"btn btn-primary",onClick:()=>openNew()},"+ Crear primer post"))
+            : e('table',{style:{width:"100%",borderCollapse:"collapse"}},
+                e('thead',null,e('tr',{style:{borderBottom:"1px solid #1A1A28"}},
+                  ["Cuenta","Título","Fecha","Formato","Estado",""].map((h2,i)=>e('th',{key:i,style:{padding:"12px 16px",textAlign:"left",fontSize:10,color:"#444",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.07em",whiteSpace:"nowrap"}},h2))
+                )),
+                e('tbody',null,
+                  [...fp].sort((a,b)=>a.date.localeCompare(b.date)).map(p=>{
+                    const acc=ga(p.account);
+                    return e('tr',{key:p.id,className:"tr-row",style:{borderBottom:"1px solid #111118"},onClick:()=>openEdit(p)},
+                      e('td',{style:{padding:"11px 16px"}},e('div',{style:{display:"flex",alignItems:"center",gap:7}},e('div',{style:{width:7,height:7,borderRadius:"50%",background:acc?.color||"#555",flexShrink:0}}),e('span',{style:{fontSize:12,color:"#666",whiteSpace:"nowrap"}},acc?.name||"—"))),
+                      e('td',{style:{padding:"11px 16px",fontSize:14,fontWeight:500}},p.title),
+                      e('td',{style:{padding:"11px 16px",fontSize:12,color:"#666",whiteSpace:"nowrap"}},p.date),
+                      e('td',{style:{padding:"11px 16px"}},e('span',{className:"tag"},p.format)),
+                      e('td',{style:{padding:"11px 16px"},onClick:ev=>ev.stopPropagation()},
+                        e('select',{className:"input",style:{width:"auto",padding:"4px 28px 4px 8px",fontSize:12,background:SC[p.status]+"18",borderColor:SC[p.status]+"50",color:SC[p.status],fontWeight:600},value:p.status,onChange:ev=>updSta(p.id,ev.target.value)},
+                          STATUSES.map(s=>e('option',{key:s,style:{background:"#13131A",color:"#E8E8F0"}},s))
+                        )
+                      ),
+                      e('td',{style:{padding:"11px 16px"}},e('button',{className:"btn btn-ghost btn-sm",onClick:ev=>{ev.stopPropagation();openEdit(p);}},"Editar"))
+                    );
+                  })
+                )
+              )
+        )
+      ),
+
+      // GUIONES
+      view==="guiones"&&e('div',{className:"guiones-grid"},
+        fp.filter(p=>p.guion||p.hook).length===0
+          ? e('div',{style:{gridColumn:"1/-1"},className:"empty-state"},e('div',{style:{fontSize:40}},"✍️"),e('div',null,"Crea un post y añade hook + guion para verlo aquí"))
+          : [...fp].filter(p=>p.guion||p.hook).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>{
+              const acc=ga(p.account);
+              return e('div',{key:p.id,className:"card guion-card",style:{padding:20,borderTop:"3px solid "+(acc?.color||"#333")},onClick:()=>openEdit(p)},
+                e('div',{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}},
+                  e('div',null,
+                    e('div',{style:{fontSize:11,color:acc?.color||"#aaa",fontWeight:700,marginBottom:4}},acc?.name||"—"),
+                    e('div',{style:{fontSize:15,fontWeight:600,lineHeight:1.3}},p.title)
+                  ),
+                  e('span',{className:"badge",style:{background:SC[p.status]+"25",color:SC[p.status],flexShrink:0,marginLeft:10}},p.status)
+                ),
+                p.hook&&e('div',{style:{background:"#0D0D14",borderLeft:"3px solid "+(acc?.color||"#555")+"55",padding:"9px 12px",borderRadius:"0 6px 6px 0",marginBottom:12}},
+                  e('div',{style:{fontSize:9,color:"#444",fontWeight:700,letterSpacing:"0.08em",marginBottom:3}},"🎣 HOOK"),
+                  e('div',{style:{fontSize:13,color:"#bbb",fontStyle:"italic",lineHeight:1.5}},'"'+p.hook+'"')
+                ),
+                p.guion&&e('div',{style:{marginBottom:12}},
+                  e('div',{style:{fontSize:9,color:"#444",fontWeight:700,letterSpacing:"0.08em",marginBottom:5}},"📝 GUION"),
+                  e('div',{style:{fontSize:13,color:"#888",lineHeight:1.7,whiteSpace:"pre-wrap"}},p.guion)
+                ),
+                e('div',{style:{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:12,borderTop:"1px solid #1A1A28"}},
+                  p.edicion&&e('div',{style:{fontSize:11,color:"#555"}},"🎬 "+p.edicion),
+                  e('div',{style:{fontSize:11,color:"#444",marginLeft:"auto"}},"📅 "+p.date)
+                )
+              );
+            })
+      )
+    ),
+
+    // MODAL CUENTAS
+    showAcc&&e('div',{className:"modal-overlay",onClick:ev=>{if(ev.target===ev.currentTarget)setShowAcc(false);}},
+      e('div',{className:"modal modal-sm"},
+        e('div',{className:"modal-header"},
+          e('div',{style:{fontFamily:"'Space Grotesk',sans-serif",fontSize:17,fontWeight:700}},"⚙️ Gestionar cuentas"),
+          e('button',{className:"btn btn-ghost",style:{padding:"5px 10px"},onClick:()=>setShowAcc(false)},"✕")
+        ),
+        e('div',{style:{padding:24,display:"flex",flexDirection:"column",gap:20}},
+          accounts.length>0&&e('div',{style:{display:"flex",flexDirection:"column",gap:8}},
+            accounts.map(a=>e('div',{key:a.id,className:"acc-row"},
+              e('div',{style:{width:14,height:14,borderRadius:"50%",background:a.color,flexShrink:0}}),
+              e('span',{style:{flex:1,fontSize:14,fontWeight:500}},a.name),
+              e('button',{className:"btn btn-ghost btn-sm",onClick:()=>setAccForm({...a})},"Editar"),
+              e('button',{className:"btn btn-danger btn-sm",onClick:()=>delAcc(a.id)},"✕")
+            ))
+          ),
+          e('div',{style:{borderTop:accounts.length>0?"1px solid #1A1A28":"none",paddingTop:accounts.length>0?20:0}},
+            e('div',{style:{fontSize:13,fontWeight:600,color:"#888",marginBottom:14}},accForm.id?"✏️ Editar cuenta":"➕ Nueva cuenta"),
+            e('div',{style:{display:"flex",flexDirection:"column",gap:14}},
+              e('div',null,
+                e('label',{className:"lbl"},"Nombre de la cuenta"),
+                e('input',{type:"text",className:"input",placeholder:"Ej: TikTok Personal, Instagram Marca...",value:accForm.name,onChange:ev=>setAccForm(f=>({...f,name:ev.target.value}))})
+              ),
+              e('div',null,
+                e('label',{className:"lbl"},"Color"),
+                e('div',{style:{display:"flex",gap:8,flexWrap:"wrap",marginTop:4}},
+                  ...COLORS.map(c=>e('div',{key:c,className:"color-swatch"+(accForm.color===c?" selected":""),style:{background:c},onClick:()=>setAccForm(f=>({...f,color:c}))})),
+                  e('input',{type:"color",value:accForm.color,onChange:ev=>setAccForm(f=>({...f,color:ev.target.value})),style:{width:28,height:28,borderRadius:"50%",border:"2px solid #2A2A3E",cursor:"pointer",padding:0}})
+                )
+              ),
+              e('div',{style:{background:"#0D0D14",borderRadius:8,padding:"10px 14px",display:"flex",alignItems:"center",gap:8,border:"1px solid #1A1A28"}},
+                e('div',{style:{width:10,height:10,borderRadius:"50%",background:accForm.color,boxShadow:`0 0 8px ${accForm.color}`}}),
+                e('span',{style:{fontSize:13,color:accForm.color,fontWeight:600}},accForm.name||"Vista previa")
+              ),
+              e('div',{style:{display:"flex",gap:8,justifyContent:"flex-end"}},
+                accForm.id&&e('button',{className:"btn btn-ghost",onClick:()=>setAccForm(EA)},"Cancelar"),
+                e('button',{className:"btn btn-primary",onClick:saveAcc},accForm.id?"Guardar cambios":"Añadir cuenta")
+              )
+            )
+          )
+        )
+      )
+    ),
+
+    // MODAL POST
+    showForm&&e('div',{className:"modal-overlay",onClick:ev=>{if(ev.target===ev.currentTarget)setShowForm(false);}},
+      e('div',{className:"modal"},
+        e('div',{className:"modal-header"},
+          e('div',{style:{fontFamily:"'Space Grotesk',sans-serif",fontSize:17,fontWeight:700}},form.id?"✏️ Editar post":"➕ Nuevo post"),
+          e('button',{className:"btn btn-ghost",style:{padding:"5px 10px"},onClick:()=>setShowForm(false)},"✕")
+        ),
+        e('div',{className:"modal-body"},
+          e('div',{className:"grid2"},
+            e('div',null,e('label',{className:"lbl"},"Cuenta *"),e('select',{className:"input",value:form.account,onChange:ev=>sf("account",ev.target.value)},accounts.map(a=>e('option',{key:a.id,value:a.id},a.name)))),
+            e('div',null,e('label',{className:"lbl"},"Fecha *"),e('input',{type:"date",className:"input",value:form.date,onChange:ev=>sf("date",ev.target.value)}))
+          ),
+          e('div',null,
+            e('label',{className:"lbl"},"Título *"),
+            e('input',{type:"text",className:"input",placeholder:"Ej: 3 errores que destrozan el marketing de tu pyme",value:form.title,onChange:ev=>sf("title",ev.target.value),autoFocus:true})
+          ),
+          e('div',{className:"grid2"},
+            e('div',null,e('label',{className:"lbl"},"Formato"),e('select',{className:"input",value:form.format,onChange:ev=>sf("format",ev.target.value)},FORMATS.map(f=>e('option',{key:f},f)))),
+            e('div',null,e('label',{className:"lbl"},"Estado"),e('select',{className:"input",value:form.status,onChange:ev=>sf("status",ev.target.value),style:{borderColor:SC[form.status]+"60",color:SC[form.status]}},STATUSES.map(s=>e('option',{key:s,style:{color:"#E8E8F0"}},s))))
+          ),
+          e('div',null,e('label',{className:"lbl"},"🎣 Hook — primeros 3 segundos"),e('textarea',{className:"input",rows:2,placeholder:"La frase que detiene el scroll.",value:form.hook,onChange:ev=>sf("hook",ev.target.value)})),
+          e('div',null,e('label',{className:"lbl"},"📝 Guion / Estructura"),e('textarea',{className:"input",rows:5,placeholder:"0-3s: Hook\n3-15s: Problema\n15-40s: Desarrollo\n40-55s: Solución\n55-60s: CTA",value:form.guion,onChange:ev=>sf("guion",ev.target.value)})),
+          e('div',null,e('label',{className:"lbl"},"🎬 Estilo de edición"),e('input',{type:"text",className:"input",placeholder:"Ej: Cortes cada 2s, subtítulos grandes...",value:form.edicion,onChange:ev=>sf("edicion",ev.target.value)})),
+          e('div',{className:"grid2"},
+            e('div',null,e('label',{className:"lbl"},"# Hashtags"),e('input',{type:"text",className:"input",placeholder:"#marketing #pymes",value:form.hashtags,onChange:ev=>sf("hashtags",ev.target.value)})),
+            e('div',null,e('label',{className:"lbl"},"📌 Notas"),e('input',{type:"text",className:"input",placeholder:"Referencias, ideas...",value:form.notas,onChange:ev=>sf("notas",ev.target.value)}))
+          )
+        ),
+        e('div',{className:"modal-footer"},
+          form.id&&!confDel&&e('button',{className:"btn btn-danger",onClick:()=>setConfDel(true)},"🗑️ Eliminar"),
+          form.id&&confDel&&e(Fragment,null,
+            e('span',{style:{fontSize:13,color:"#FF2D55",fontWeight:500}},"¿Seguro?"),
+            e('button',{className:"btn btn-danger",onClick:delPost},"Sí"),
+            e('button',{className:"btn btn-ghost",style:{padding:"6px 12px"},onClick:()=>setConfDel(false)},"No")
+          ),
+          e('div',{style:{marginLeft:"auto",display:"flex",gap:10}},
+            e('button',{className:"btn btn-ghost",onClick:()=>setShowForm(false)},"Cancelar"),
+            e('button',{className:"btn btn-primary",onClick:savePost},form.id?"Guardar cambios":"Crear post")
+          )
+        )
+      )
+    ),
+
+    toast&&e('div',{className:"toast"},toast)
+  );
+}
+
+createRoot(document.getElementById("app")).render(h(App));
+</script>
+</body>
+</html>
